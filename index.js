@@ -54,58 +54,91 @@ async function startBot() {
 
 
 //propagandas
-  const propagandas = ['Calça jeans por APENAS 500R$!!! corree', 'Janela para Banheiro por APENAS 1000R$!!!!']
 
 
 
-  // evento de receber msg
-  bot.ev.on("messages.upsert", async (messages) => {
-    const messageBot = messages.messages[0];
-    const mensagem = messageBot?.message?.extendedTextMessage?.text;
-    // console.log(messageBot.message?.imageMessage);
-
-    
+// evento de receber msg
+bot.ev.on("messages.upsert", async (messages) => {
+  const messageBot = messages.messages[0];
+  const mensagem = messageBot?.message?.extendedTextMessage?.text;
+  // console.log(messageBot.message?.imageMessage);
+  
+  
   async function teste() {
       const ids = ["559981199229@s.whatsapp.net", "559992134658@s.whatsapp.net" ];
       const id = "559981199229@s.whatsapp.net"
       const messageType = Object.keys(messageBot.message)[0]
-    
+      
       //baixar imagens
 
       if (messageType === 'imageMessage') {
         // download the message
         const buffer = await downloadMediaMessage(
-            messageBot,
-            'buffer',
+          messageBot,
+          'buffer',
             { },
             { 
-                logger,
+              logger,
                 // pass this so that baileys can request a reupload of media
                 // that has been deleted
                 reuploadRequest: bot.updateMediaMessage
-            }
-        )
-        // save to file
+              }
+            )
+            // save to file
         await writeFile('./propagandas/$my-download.jpeg', buffer)
     }
-
+    
     // let chaveMenu = false
-
-   
-
-      if(mensagem === "/menu") {
-        await bot.sendMessage(id, {text:"----------Menu de Escolha----------------\n  \n */nova-propaganda*: Adicionar propaganda \n \n */enviar* : use /enviar nomedapropaganda \n  \n */listar-propagandas* : mostra propagandas cadastradas \n "});
+    
+    const nomePropagandas = ["calca","janela"];
+    const legendas = ["Calça jeans por APENAS 500R$!!! corree", "Janela para banheiro 2x2 APENAS 1000R$!!!!!"]
+    
+    
+    if(mensagem === "/menu") {
+      await bot.sendMessage(id, {text:"----------Menu de Escolha----------------\n  \n */nova-propaganda*: Adicionar propaganda \n \n */enviar* : use /enviar nomedapropaganda \n  \n */listar-propagandas* : mostra propagandas cadastradas \n "});
       }
 
 
-      if(mensagem === "/post") {
-      ids.forEach(id => {
+      if(mensagem === "/enviar") {
+        await bot.sendMessage(id, {text: `------lista de propagandas --------`});
+
+       nomePropagandas.forEach((nomePg, indice) => {
+
         async function send() {
-          await bot.sendMessage(id,    { 
-            image: { url: "./propagandas/image.jpeg" }, mimetype: 'image/jpeg',  caption: "Calça jeans por APENAS 500R$!!! corree"});
+          await bot.sendMessage(id, {text: `${indice}: ${nomePropagandas[indice]}`});
         }
-        send();
-      });
+          send();
+        });
+
+
+
+        //segundo fluxo NÃO FUNCIONA AINDA!!!
+        bot.ev.on("messages.upsert", async (messages) => {
+
+          const mensagemRecebida = messages.messages[0];
+
+
+          if(mensagemRecebida === nomePropagandas[0]) {
+            nomePropagandas.forEach((prop, indice) => {
+
+              async function send() {
+                await bot.sendMessage(id, { 
+                  image: { url: `./propagandas/${prop}.jpeg` }, mimetype: 'image/jpeg',  caption: `${legendas[indice]}`})
+              }
+              send();
+            });
+          }
+        })
+
+
+
+      // ids.forEach((id, indice) => {
+      //   async function send() {
+      //     await bot.sendMessage(id,    { 
+      //       image: { url: `./propagandas/${}.jpeg` }, mimetype: 'image/jpeg',  caption: `${legendas[indice]}`});
+      //   }
+      //   send();
+      // });
 
 
       }
@@ -119,14 +152,22 @@ async function startBot() {
       }
 
       if(mensagem === "/listar-propagandas") {
-
-        propagandas.forEach(prop => {
+        nomePropagandas.forEach((prop, indice) => {
 
           async function send() {
-            await bot.sendMessage(id, {text: `${prop}` });
-          }
+            try{
+              
+              await bot.sendMessage(id, { 
+                image: { url: `./propagandas/${prop}.jpeg` }, mimetype: 'image/jpeg',  caption: `Nome da postagem: ${prop} \n \n legenda: ${legendas[indice]}`})
+            }catch{
+              await bot.sendMessage(id, { 
+                image: { url: `./propagandas/${prop}.jpeg` }, mimetype: 'image/jpeg',  caption: `Nome da postagem: ${prop} \n \n legenda: ${legendas[indice]}`})
+            }
+
+            }
           send();
         });
+       
       }
 
 
