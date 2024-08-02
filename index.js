@@ -5,7 +5,7 @@ import { writeFile } from 'fs/promises';
 import  { downloadMediaMessage } from '@whiskeysockets/baileys';
 import  pkg from  '@whiskeysockets/baileys';
 const {logger} = pkg;
-
+// import { MessageType, MessageOptions, Mimetype } from '@whiskeysockets/baileys'
 
 import {
   makeWASocket,
@@ -51,15 +51,22 @@ async function startBot() {
     }
   });
 
+
+
+//propagandas
+  const propagandas = ['Calça jeans por APENAS 500R$!!! corree', 'Janela para Banheiro por APENAS 1000R$!!!!']
+
+
+
   // evento de receber msg
   bot.ev.on("messages.upsert", async (messages) => {
     const messageBot = messages.messages[0];
     const mensagem = messageBot?.message?.extendedTextMessage?.text;
-    console.log(messageBot.message.imageMessage);
+    // console.log(messageBot.message?.imageMessage);
 
     
   async function teste() {
-      const ids = ["559981199229@s.whatsapp.net" ];
+      const ids = ["559981199229@s.whatsapp.net", "559992134658@s.whatsapp.net" ];
       const id = "559981199229@s.whatsapp.net"
       const messageType = Object.keys(messageBot.message)[0]
     
@@ -84,15 +91,25 @@ async function startBot() {
 
     // let chaveMenu = false
 
+   
 
       if(mensagem === "/menu") {
-        ids.forEach(id => {
-          async function send() {
-            await bot.sendMessage(id, {text:"----------Menu de Escolha----------------\n */nova-propaganda*: Adicionar propaganda \n  */enviar* : use /enviar nomedapropaganda \n "});
-          }
-          send();
-        });
+        await bot.sendMessage(id, {text:"----------Menu de Escolha----------------\n  \n */nova-propaganda*: Adicionar propaganda \n \n */enviar* : use /enviar nomedapropaganda \n  \n */listar-propagandas* : mostra propagandas cadastradas \n "});
       }
+
+
+      if(mensagem === "/post") {
+      ids.forEach(id => {
+        async function send() {
+          await bot.sendMessage(id,    { 
+            image: { url: "./propagandas/image.jpeg" }, mimetype: 'image/jpeg',  caption: "Calça jeans por APENAS 500R$!!! corree"});
+        }
+        send();
+      });
+
+
+      }
+
 
       if(mensagem === "/nova-propaganda") {
         async function send() {
@@ -101,11 +118,12 @@ async function startBot() {
         send();
       }
 
-      if(mensagem === "Propaganda-dia-maes") {
+      if(mensagem === "/listar-propagandas") {
 
-        id.forEach(id => {
+        propagandas.forEach(prop => {
+
           async function send() {
-            await bot.sendMessage(id, {text:"maes......"});
+            await bot.sendMessage(id, {text: `${prop}` });
           }
           send();
         });
